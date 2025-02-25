@@ -7,4 +7,4 @@
 #### now we are editing a note what if we want to remove one 
 #### we should type " python3 engine.py remove noteName"
 ### important topic if you want to add a content or a name that is more than one word you can  add the name in " "
-### like this python3 engine.py add note1 " hello i am note 1" 
+### like this  (python3 engine.py add note1 " hello i am note 1") 
