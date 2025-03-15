@@ -37,30 +37,32 @@ def dataBase():
     show_parser.add_argument(
         "number", type=int, help="number of the note that is removed")
     args = parser.parse_args()
-    if args.command == "remove" or args.command == "list" or args.command == "show" or args.command=="edit":
+    if args.command == "remove" or args.command == "list" or args.command == "show" or args.command == "edit":
 
         return args, file_path
     string = f"""\n{args.title}:{args.content}"""
     return args, string, file_path
 
 
-def checkIfRepeated(integer, filePath):
+def readFile(filePath):
     with open(filePath, "r") as file:
         lines = file.readlines()
-        num = 0
-        for i in lines:
+    return lines
 
-            num = num+1
-            if type(integer) == int:
-                if int(integer) > len(lines):
-                    return "no"
 
-                print(int(integer), num, i)
-            return "yes "
-            # return "yes"
-        #     if i.split(":")[0] == string.split(":")[0]:
-        #         return "yes"
-        # return "no"
+def getNumNotes(content):
+    size = len(content)
+    print(size)
+    return size
+
+
+def noteIndexExists(content, integer):
+    for line in content:
+        nameOfNote = line.split(":")[0]
+        integerNoteName = content[integer-1].split(":")[0]
+        if nameOfNote == integerNoteName:
+            print(nameOfNote, integerNoteName)
+            return True
 
 
 def add(name):
@@ -68,76 +70,68 @@ def add(name):
         file.write(name)
 
 
-def edit(num, content,filePath):
-     if checkIfRepeated(num,filePath) == "yes":
-            print(f"✅ Note number '{num}' updated successfully!")
-     else:
-         print(f"❌ Error: Note number '{num}' not found!")
-     with open(filePath, "r") as file:
-        lines = file.readlines() 
-       
+def edit(num, content, filePath):
+    if num > getNumNotes(readFile(dataBase()[1])):
+        print("that is a very big note number please type (python3 engine.py list) to know the notes and their number")
+        return
+    if noteIndexExists(readFile(filePath), num) == True:
+        print(f"✅ Note number '{num}' updated successfully!")
+    else:
+        print(f"❌ Error: Note number '{num}' not found!")
+    with open(filePath, "r") as file:
+        lines = file.readlines()
+
         with open(filePath, "w") as file:
             for line in lines:
-                print("line",line)
-                print(num)
                 name = lines[num-1].split(":")[0]
                 if line.startswith(name + ":"):  # Find the note
- 
-                    file.write(
-                        f"\n {name}:{content} ")
+
+                    file.write(f"{name}:{content}\n")
                 else:
                     file.write(line)  # Keep other lines unchanged
 
-       
-
 
 def remove(integer, filePath):
-    if checkIfRepeated(integer, dataBase()[1]) == "no":
+
+    if integer == "all":
+        with open(filePath, "w") as file:
+            file.writelines("")
+            print(f"✅ everything removed succesfully")
+            return
+    if noteIndexExists(readFile(dataBase()[1]), int(integer)) != True:
         print(f"❌ Error: Note number {integer} not found!")
         return
 
     else:
-        if integer == "all":
-            with open(filePath, "r") as file:
-                lines = file.readlines()
-            with open(filePath, "w") as file:
-                file.writelines("")
-                print(f"✅ everything removed succesfully")
-                return
 
         with open(filePath, "r") as file:
             lines = file.readlines()
             name = lines[int(integer)-1]
-            print(name, "namo")
             new_lines = [
                 line for line in lines if not line.startswith(name.split(":")[0]+":")]
-            print(new_lines, "new")
         with open(filePath, "w") as file:
             file.writelines(new_lines)
             print(
                 f"✅ note {integer} `{name.split(":")[0]}` removed successfully!")
 
 
-def listFn(filePath):
-    with open(filePath, "r") as file:
-        lines = file.readlines()
-        num = 0
-        for i in lines:
-            num += 1
-            print(num, i.split(":")[0])
+def listFn():
+
+    num = 0
+    for i in readFile(dataBase()[1]):
+        num += 1
+        print(num, i.split(":")[0].strip())
 
 
-def show(filePath, args):
-    with open(filePath, "r") as file:
-        lines = file.readlines()
+def show(args):
 
-        if args.number > len(lines):
-            print(
-                """this is a very big number there is no note to this number please write 
+    if args.number > len(readFile(dataBase()[1])):
+        print(
+            """this is a very big number there is no note to this number please write 
 python3 engine.py list""".capitalize())
-            return
+        return
 
-        print(lines[args.number-1])
+    print(readFile(dataBase()[1])[args.number-1])
 
 
 def start():
@@ -148,9 +142,9 @@ def start():
     if dataBase()[0].command == "remove":
         remove(dataBase()[0].title, dataBase()[1])
     if dataBase()[0].command == "list":
-        listFn(dataBase()[1])
+        listFn()
     if dataBase()[0].command == "show":
-        show(dataBase()[1], dataBase()[0])
+        show(dataBase()[0])
 
 
 start()
